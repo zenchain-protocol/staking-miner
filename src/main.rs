@@ -104,6 +104,11 @@ macro_rules! any_runtime {
 				use $crate::static_types::westend::MinerConfig;
 				$($code)*
 			},
+			$crate::opt::Chain::Zenchain => {
+				#[allow(unused)]
+				use $crate::static_types::zenchain::MinerConfig;
+				$($code)*
+			},
 		}
 	};
 }
