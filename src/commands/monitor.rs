@@ -177,7 +177,7 @@ where
 	let signer = Signer::new(&config.seed_or_path)?;
 
 	let account_info = {
-		let addr = runtime::storage().system().account(signer.account_id());
+		let addr = runtime::storage().system().account(subxt::ext::subxt_core::utils::AccountId20::from(signer.account_id().0));
 		client
 			.chain_api()
 			.storage()
@@ -252,7 +252,7 @@ where
 			.storage()
 			.at_latest()
 			.await?
-			.fetch(&runtime::storage().system().account(signer.account_id()))
+			.fetch(&runtime::storage().system().account(subxt::ext::subxt_core::utils::AccountId20::from(signer.account_id().0)))
 			.await?
 			.ok_or(Error::AccountDoesNotExists)?;
 		// this is lossy but fine for now.

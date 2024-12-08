@@ -23,12 +23,16 @@ thiserror = "2.0"
 tokio = { version = "1.41", features = ["macros", "rt-multi-thread", "sync", "signal"] }
 pin-project-lite = "0.2"
 
+# Frontier Primitive
+fp-account = { git = "https://github.com/polkadot-evm/frontier.git", branch = "stable2407" }
+
 # subxt
 scale-value = "0.17"
 subxt = "0.38.0"
 
 # polkadot-sdk
-polkadot-sdk = { version = "0.7", features = ["frame-election-provider-support", "frame-support", "sp-npos-elections", "sp-core", "sp-runtime", "pallet-election-provider-multi-phase"] }
+polkadot-sdk = { git = "https://github.com/paritytech/polkadot-sdk", branch = "stable2407", features = ["frame-election-provider-support", "frame-support", "sp-npos-elections", "sp-core", "sp-runtime", "pallet-election-provider-multi-phase"] }
+
 
 # prometheus
 prometheus = "0.13"

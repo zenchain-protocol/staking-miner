@@ -25,13 +25,19 @@ pub use polkadot_sdk::{
 	pallet_election_provider_multi_phase::{Miner, MinerConfig},
 	sp_runtime::traits::{Block as BlockT, Header as HeaderT},
 };
+
+use subxt::utils::{MultiAddress, MultiSignature, H256};
+use subxt::config::substrate::{BlakeTwo256, SubstrateHeader};
+use subxt::config::SubstrateExtrinsicParams;
+
+pub type Signature = MultiSignature;
+
 /// The account id type.
-pub type AccountId = polkadot_sdk::sp_runtime::AccountId32;
+pub type AccountId = subxt::ext::subxt_core::utils::AccountId20;
 /// The header type. We re-export it here, but we can easily get it from block as well.
-pub type Header =
-	subxt::config::substrate::SubstrateHeader<u32, subxt::config::substrate::BlakeTwo256>;
+pub type Header = SubstrateHeader<u32, BlakeTwo256>;
 /// The header type. We re-export it here, but we can easily get it from block as well.
-pub type Hash = subxt::utils::H256;
+pub type Hash = H256;
 /// Balance type
 pub type Balance = u128;
 
@@ -44,15 +50,31 @@ pub const DEFAULT_PROMETHEUS_PORT: u16 = 9999;
 /// The logging target.
 pub const LOG_TARGET: &str = "polkadot-staking-miner";
 /// The key pair type being used. We "strongly" assume sr25519 for simplicity.
-pub type Pair = polkadot_sdk::sp_core::sr25519::Pair;
+pub type Pair = polkadot_sdk::sp_core::ecdsa::Pair;
 /// The accuracy that we use for election computations.
 pub type Accuracy = polkadot_sdk::sp_runtime::Perbill;
 /// RPC client.
-pub type RpcClient = subxt::backend::legacy::LegacyRpcMethods<subxt::PolkadotConfig>;
+pub type RpcClient = subxt::backend::legacy::LegacyRpcMethods<ZenchainConfig>;
 /// Subxt client used by the staking miner on all chains.
-pub type ChainClient = subxt::OnlineClient<subxt::PolkadotConfig>;
+pub type ChainClient = subxt::OnlineClient<ZenchainConfig>;
 /// Config used by the staking-miner
-pub type Config = subxt::PolkadotConfig;
+
+
+#[derive(Clone, Copy, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+pub enum ZenchainConfig {}
+
+impl subxt::Config for ZenchainConfig {
+	type Hash = H256;
+	type AccountId = AccountId;
+	type Address = MultiAddress<AccountId, u32>;
+	type Signature = Signature;
+	type Hasher = BlakeTwo256;
+	type Header = SubstrateHeader<u32, BlakeTwo256>;
+	type ExtrinsicParams = SubstrateExtrinsicParams<Self>;
+	type AssetId = u32;
+}
+
+pub type Config = ZenchainConfig;
 /// Submission type used by the staking miner.
 pub type SignedSubmission<S> =
 	polkadot_sdk::pallet_election_provider_multi_phase::SignedSubmission<AccountId, Balance, S>;
@@ -63,6 +85,10 @@ pub type SignedSubmission<S> =
 	derive_for_type(
 		path = "pallet_election_provider_multi_phase::RoundSnapshot",
 		derive = "Default"
+	),
+	substitute_type(
+		path = "sp_core::crypto::AccountId32",
+		with = "::subxt::ext::subxt_core::utils::AccountId20"
 	),
 	substitute_type(
 		path = "sp_npos_elections::ElectionScore",

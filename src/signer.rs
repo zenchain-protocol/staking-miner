@@ -18,50 +18,47 @@
 
 use crate::{
 	error::Error,
-	prelude::{Config as PolkadotConfig, Pair},
+	prelude::{Pair},
 };
 use polkadot_sdk::{
 	sp_core::Pair as PairT,
-	sp_runtime::{
-		traits::{IdentifyAccount, Verify},
-		MultiSignature as SpMultiSignature,
-	},
 };
 use subxt::Config;
+use crate::prelude::{ZenchainConfig};
 
 /// A [`Signer`] implementation that can be constructed from an [`Pair`].
 #[derive(Clone)]
 pub struct PairSigner {
-	account_id: <PolkadotConfig as Config>::AccountId,
+	account_id: <ZenchainConfig as  Config>::AccountId,
 	signer: Pair,
 }
 
 impl PairSigner {
 	/// Creates a new [`Signer`] from an [`Pair`].
 	pub fn new(signer: Pair) -> Self {
-		let account_id = <SpMultiSignature as Verify>::Signer::from(signer.public()).into_account();
-		let subxt_account_id = subxt::config::substrate::AccountId32(account_id.into());
+		let account_id = fp_account::AccountId20::from(signer.public());
+		let subxt_account_id = subxt::ext::subxt_core::utils::AccountId20(account_id.0);
 		Self { account_id: subxt_account_id, signer }
 	}
 
 	/// Return the account ID.
-	pub fn account_id(&self) -> &<PolkadotConfig as Config>::AccountId {
+	pub fn account_id(&self) -> &<ZenchainConfig as  Config>::AccountId {
 		&self.account_id
 	}
 }
 
-impl subxt::tx::Signer<PolkadotConfig> for PairSigner {
-	fn account_id(&self) -> <PolkadotConfig as Config>::AccountId {
+impl subxt::tx::Signer<ZenchainConfig> for PairSigner {
+	fn account_id(&self) -> <ZenchainConfig as  Config>::AccountId {
 		self.account_id.clone()
 	}
 
-	fn address(&self) -> <PolkadotConfig as Config>::Address {
+	fn address(&self) -> <ZenchainConfig as  Config>::Address {
 		self.account_id.clone().into()
 	}
 
-	fn sign(&self, signer_payload: &[u8]) -> <PolkadotConfig as Config>::Signature {
+	fn sign(&self, signer_payload: &[u8]) -> <ZenchainConfig as  Config>::Signature {
 		let signature = self.signer.sign(signer_payload);
-		subxt::config::substrate::MultiSignature::Sr25519(signature.0)
+		subxt::config::substrate::MultiSignature::Ecdsa(signature.0)
 	}
 }
 

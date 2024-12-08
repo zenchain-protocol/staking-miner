@@ -102,7 +102,7 @@ where
 	if let Some(seed_or_path) = &config.seed_or_path {
 		let signer = Signer::new(seed_or_path)?;
 		let account_info = storage
-			.fetch(&runtime::storage().system().account(signer.account_id()))
+			.fetch(&runtime::storage().system().account(subxt::ext::subxt_core::utils::AccountId20::from(signer.account_id().0)))
 			.await?
 			.ok_or(Error::AccountDoesNotExists)?;
 
