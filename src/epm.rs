@@ -264,7 +264,7 @@ pub fn unsigned_solution<S: NposSolution + Encode + TypeInfo + 'static>(
 ) -> Result<DynamicPayload, Error> {
 	let scale_solution = to_scale_value(solution)?;
 	let scale_witness = to_scale_value(witness)?;
-
+	// TODO: support zenchain tx type for weight estimation
 	Ok(subxt::dynamic::tx(EPM_PALLET_NAME, "submit_unsigned", vec![scale_solution, scale_witness]))
 }
 
@@ -554,7 +554,7 @@ pub async fn runtime_api_solution_weight<S: Encode + NposSolution + TypeInfo + '
 
 	let bytes = client
 		.rpc()
-		.state_call("TransactionPaymentCallApi_query_call_info", Some(&call_data), None)
+		.state_call("TransactionPaymentApi_query_info", Some(&call_data), None)
 		.await?;
 
 	let info: RuntimeDispatchInfo = Decode::decode(&mut bytes.as_ref())?;

@@ -137,6 +137,9 @@ pub mod zenchain {
 				return Weight::MAX;
 			}
 
+			// TODO: remove this temporary workaround once frontier extrinsics are supported
+			return Weight::from_parts(100, 0);
+
 			futures::executor::block_on(epm::runtime_api_solution_weight(
 				raw,
 				SolutionOrSnapshotSize { voters, targets },
